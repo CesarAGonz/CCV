@@ -1,10 +1,11 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture('aeropuerto.mp4')
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture('https://192.168.1.128:8081/user=Test&password=admin')
 
 fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7,3))
 
 while True:
 
@@ -17,8 +18,8 @@ while True:
     color = (0, 255, 0)
     texto_estado = "Estado: No se ha detectado movimiento"
 
-    area_pts = np.array([[800,640], [1100,640], [1700,frame.shape[0]], [200,frame.shape[0]]])
-
+    area_pts = np.array([[500,140], [100,140], [100,frame.shape[0]], [500,frame.shape[0]]])
+    #[,alturadel punto superior izquierdo], [,altura del punto superior derecho]
 
     imAux = np.zeros(shape=(frame.shape[:2]), dtype=np.uint8)
     imAux = cv2.drawContours(imAux, [area_pts], -1, (255), -1)
@@ -30,7 +31,7 @@ while True:
 
     cnts = cv2.findContours(fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
     for cnt in cnts:
-        if cv2.contourArea(cnt) > 500:
+        if cv2.contourArea(cnt) > 5000:
             x, y, w, h = cv2.boundingRect(cnt)
             cv2.rectangle(frame, (x,y), (x+w, y+h),(0,255,0), 2)
             texto_estado = "Estado: Alerta Movimiento Detectado!"
@@ -41,8 +42,8 @@ while True:
                 cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
     cv2.imshow('frame', frame)
-    cv2.imshow('fgmask', fgmask)
-    cv2.imshow('image_area', image_area)
+   # cv2.imshow('fgmask', fgmask)
+   # cv2.imshow('image_area', image_area)
 
     k = cv2.waitKey(30) & 0xFF
     if k == 27:
